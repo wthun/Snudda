@@ -577,7 +577,7 @@ class SnuddaPlace(object):
             return []
 
     def get_projection_axon_location(self, source_position, proj_info, rng):
-        if proj_cfg not in proj_info:
+        if 'projection' not in proj_info:
             raise KeyError("No 'projection' entry in the projection config!")
         proj_cfg = proj_info["projection"]
         if "file" in proj_cfg and \
