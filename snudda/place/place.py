@@ -577,6 +577,7 @@ class SnuddaPlace(object):
             return []
 
     def get_projection_axon_location(self, source_position, proj_info, rng):
+
         if 'projection' not in proj_info:
             raise KeyError("No 'projection' entry in the projection config!")
         proj_cfg = proj_info["projection"]
@@ -591,7 +592,8 @@ class SnuddaPlace(object):
             destination = np.array(proj_cfg["destination"])*1e-6
 
         elif "file" in proj_cfg :
-            proj_file_data = json.load(proj_cfg["file"])
+            with open(proj_cfg["file"], 'r') as f:
+                proj_file_data = json.load(f)
             source = np.array(proj_file_data["source"])*1e-6
             destination = np.array(proj_file_data["destination"])*1e-6
             
@@ -605,9 +607,10 @@ class SnuddaPlace(object):
             rot_position = destination
         
         elif "file" in rotation_cfg:
-            rotation_data = json.load(rotation_cfg["file"])
+            with open(rotation_cfg["file"], 'r') as f:
+                rotation_data = json.load(f)
             rotation = np.array(rotation_data["rotation"])
-            rotation = np.array(rotation_data["position"])*1e-6
+            rot_position = np.array(rotation_data["position"])*1e-6
         else:
             rotation = None
             rot_position = None
@@ -616,7 +619,7 @@ class SnuddaPlace(object):
                                   values=destination,
                                   xi=source_position,
                                   method="linear")
-
+        
         # which coordinates to use for selecting rotation
         mapping = rotation_cfg.get('mapping', 'target')
         if mapping == "target":
@@ -624,7 +627,7 @@ class SnuddaPlace(object):
         elif mapping == "source":
             xi = source_position
         else:
-            raise NotImplentedError()
+            raise NotImplentedError(f"Unknown mapping '{mapping}'!")
 
         if rotation is not None:
             target_rotation = griddata(points=rot_position,
